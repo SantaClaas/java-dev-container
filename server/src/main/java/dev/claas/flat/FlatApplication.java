@@ -14,7 +14,8 @@ public class FlatApplication {
 		SpringApplication.run(FlatApplication.class, args);
 	}
 
-	@GetMapping("/hello")
+	// No version in url as there will only be one version ever
+	@GetMapping("/api/hello")
 	public String hello(@RequestParam(value = "name", defaultValue = "World") String name) {
 		return String.format("Hello %s!", name);
 	}
