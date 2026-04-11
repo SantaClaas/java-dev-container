@@ -6,3 +6,8 @@ A dev container template/base repository for univerisity java projects to keep t
 ```bash
 mvn spring-boot:run
 ```
+
+Vite dev server needs to accept incoming requests to the dev server
+```bash
+pnpm dev --host
+```
