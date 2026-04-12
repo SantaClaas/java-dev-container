@@ -6,19 +6,15 @@ type Orientation =
   { isAbsolute: boolean, alpha: number | null, beta: number | null, gamma: number | null }
 
 
+const isPermissionRequired = "requestPermission" in DeviceOrientationEvent && typeof DeviceOrientationEvent.requestPermission === "function";
+
 export default function App() {
   const dismountAbortController = new AbortController();
   onCleanup(() => dismountAbortController.abort());
 
-
   const [orientation, setOrientation] = createSignal<Orientation | undefined>();
 
-  async function requestOrientation() {
-    if ("requestPermission" in DeviceOrientationEvent && typeof DeviceOrientationEvent.requestPermission === "function") {
-      const result = await DeviceOrientationEvent.requestPermission();
-      if (result !== "granted") return;
-    }
-
+  function setUpListener() {
     window.addEventListener("deviceorientation", (event) => {
       console.debug("DeviceOrientationEvent", event);
 
@@ -34,6 +30,18 @@ export default function App() {
     })
   }
 
+  async function requestOrientation() {
+    if ("requestPermission" in DeviceOrientationEvent && typeof DeviceOrientationEvent.requestPermission === "function") {
+      const result = await DeviceOrientationEvent.requestPermission();
+      if (result !== "granted") return;
+    }
+
+
+    setUpListener();
+  }
+
+  if (!isPermissionRequired) setUpListener();
+
   return (
     <main>
       <Show when={orientation()}>
@@ -47,10 +55,12 @@ export default function App() {
           <dt>gamma</dt>
           <dd>{orientation().gamma?.toString() ?? "null"}</dd>
         </dl>)}
-
       </Show>
 
-      <button onClick={requestOrientation}>Request</button>
+      <Show when={isPermissionRequired}>
+        <p>Access to orientation data is required for this app to work</p>
+        <button onClick={requestOrientation}>Allow access</button>
+      </Show>
     </main>
   )
 }
